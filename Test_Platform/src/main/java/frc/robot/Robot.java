@@ -7,16 +7,9 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
-import edu.wpi.first.wpilibj.PWMVictorSPX;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -33,13 +26,7 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private final XboxController _driverController = new XboxController(0);
-  private final PWMVictorSPX _leftFront = new PWMVictorSPX(2);
-  private final PWMVictorSPX _rightFront = new PWMVictorSPX(1);
-  private final WPI_TalonSRX _leftRear = new WPI_TalonSRX(4);
-  private final WPI_TalonSRX _rightRear = new WPI_TalonSRX(3);
-  private final SpeedControllerGroup _left = new SpeedControllerGroup(_leftFront, _leftRear);
-  private final SpeedControllerGroup _right = new SpeedControllerGroup(_rightFront, _rightRear);
-  private final DifferentialDrive _drive = new DifferentialDrive(_left, _right);
+  private final Drivetrain _drive = new Drivetrain();
 
   /**
    * This function is run when the robot is first started up and should be
@@ -50,6 +37,7 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    _drive.init();
   }
 
   /**
