@@ -15,15 +15,15 @@ public class Drivetrain {
     private static final double kD = 0;
     private static final double kF = 0;
     private static final double kDeadband = 0.1;
-    private static final double kMaxRPM = 200;
+    private static final double kMaxRPM = 1000;
     private final CANSparkMax _leftFront = new CANSparkMax(9, MotorType.kBrushless);
     private final CANSparkMax _rightFront = new CANSparkMax(7, MotorType.kBrushless);
-    private final CANSparkMax _leftRear = new CANSparkMax(8, MotorType.kBrushless);
-    private final CANSparkMax _rightRear = new CANSparkMax(11, MotorType.kBrushless);
+    private final CANSparkMax _leftRear = new CANSparkMax(11, MotorType.kBrushless);
+    private final CANSparkMax _rightRear = new CANSparkMax(8, MotorType.kBrushless);
     private final CANPIDController _leftController = _leftRear.getPIDController();
     private final CANPIDController _rightController = _rightRear.getPIDController();
-    private final CANEncoder _leftCanEncoder = _leftRear.getEncoder(EncoderType.kQuadrature, 4096);
-    private final CANEncoder _rightCanEncoder = _rightRear.getEncoder(EncoderType.kQuadrature, 4096);
+    private final CANEncoder _leftCanEncoder = _leftRear.getEncoder();
+    private final CANEncoder _rightCanEncoder = _rightRear.getEncoder();
 
     public void init(){
         _leftFront.restoreFactoryDefaults();
@@ -62,17 +62,27 @@ public class Drivetrain {
         SmartDashboard.putNumber("left encoder velocity", _leftCanEncoder.getVelocity());
         SmartDashboard.putNumber("right encoder velocity", _rightCanEncoder.getVelocity());
 
+        SmartDashboard.putNumber("right front current", _rightFront.getOutputCurrent());
+        SmartDashboard.putNumber("right rear current", _rightRear.getOutputCurrent());
+        SmartDashboard.putNumber("left front current", _leftFront.getOutputCurrent());
+        SmartDashboard.putNumber("left rear current", _leftRear.getOutputCurrent());
+
+        SmartDashboard.putNumber("right front temp", _rightFront.getMotorTemperature());
+        SmartDashboard.putNumber("right rear temp", _rightRear.getMotorTemperature());
+        SmartDashboard.putNumber("left front temp", _leftFront.getMotorTemperature());
+        SmartDashboard.putNumber("left rear temp", _leftRear.getMotorTemperature());
+
         _leftController.setReference(leftVelocity_RPM, ControlType.kVelocity);
         _rightController.setReference(rightVelocity_RPM, ControlType.kVelocity);
     }
 
     private void config(CANPIDController controller, CANEncoder encoder){
-        encoder.setVelocityConversionFactor(1.0/4096.0);
+        //encoder.setVelocityConversionFactor(1.0/4096.0);
         controller.setFF(kF);
         controller.setP(kP);
         controller.setI(kI);
         controller.setD(kD);
-        controller.setOutputRange(-.1, .1);
+        controller.setOutputRange(-.5, .5);
         controller.setFeedbackDevice(encoder);
     }
 
