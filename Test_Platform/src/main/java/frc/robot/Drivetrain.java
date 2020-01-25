@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.revrobotics.CANSparkMax;
 
 public class Drivetrain {
     public static final int kSlotIdx = 0;
@@ -17,13 +18,13 @@ public class Drivetrain {
     public static final double Iz = 300;
     public static final double PeakOut = 1.00;
     public static final double kDeadband = 0.1;
-    private final WPI_VictorSPX _leftFront = new WPI_VictorSPX(2);
-    private final WPI_VictorSPX _rightFront = new WPI_VictorSPX(1);
-    private final WPI_TalonSRX _leftRear = new WPI_TalonSRX(4);
-    private final WPI_TalonSRX _rightRear = new WPI_TalonSRX(3);
+    private final CANSparkMax _leftFront = new CANSparkMax(0, MotorType.kBrushless);
+    private final CANSparkMax _rightFront = new CANSparkMax(0, MotorType.kBrushless);
+    private final CANSparkMax _leftRear = new CANSparkMax(0, MotorType.kBrushless);
+    private final CANSparkMax _rightRear = new CANSparkMax(0, MotorType.kBrushless);
 
     public void init(){
-        _leftFront.configFactoryDefault();
+        _leftFront.restoreFactoryDefaults();
         _rightFront.configFactoryDefault();
         _leftRear.configFactoryDefault();
         _rightRear.configFactoryDefault();
