@@ -4,7 +4,6 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
-import com.revrobotics.EncoderType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -14,8 +13,8 @@ public class Drivetrain {
     private static final double kI = 1e-6;
     private static final double kD = 0;
     private static final double kF = 0;
-    private static final double kDeadband = 0.1;
-    private static final double kMaxRPM = 1000;
+    private static final double kDeadband = 0.15;
+    private static final double kMaxRPM = 1500;
     private final CANSparkMax _leftFront = new CANSparkMax(9, MotorType.kBrushless);
     private final CANSparkMax _rightFront = new CANSparkMax(7, MotorType.kBrushless);
     private final CANSparkMax _leftRear = new CANSparkMax(11, MotorType.kBrushless);
@@ -47,8 +46,8 @@ public class Drivetrain {
         var filterspeed = filterInput(speed, filterDeadband);
         var filterrotation = filterInput(rotation, filterDeadband);
 
-        var leftspeed = Math.max(Math.min(filterspeed + 0.5*filterrotation, 1.0), -1.0);
-        var rightspeed = Math.max(Math.min(filterspeed - 0.5*filterrotation, 1.0), -1.0);
+        var leftspeed = Math.max(Math.min(filterspeed + 0.65*filterrotation, 1.0), -1.0);
+        var rightspeed = Math.max(Math.min(filterspeed - 0.65*filterrotation, 1.0), -1.0);
 
         double leftVelocity_RPM = leftspeed * kMaxRPM;
         double rightVelocity_RPM = rightspeed * kMaxRPM;
@@ -82,7 +81,7 @@ public class Drivetrain {
         controller.setP(kP);
         controller.setI(kI);
         controller.setD(kD);
-        controller.setOutputRange(-.5, .5);
+        controller.setOutputRange(-1, 1);
         controller.setFeedbackDevice(encoder);
     }
 
