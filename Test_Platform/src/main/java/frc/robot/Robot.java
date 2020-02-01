@@ -107,6 +107,14 @@ public class Robot extends TimedRobot {
     var rotation = 0.0;
     var filterDeadband = false;
 
+    if(_driverController.getAButtonPressed()){
+      _pixycontroller.turnLightOn(255, 255, 255);
+    }
+
+    if(_driverController.getAButtonReleased()){
+      _pixycontroller.turnLightOff();
+    }
+
     if(_driverController.getAButton()){
       var result = _pixycontroller.trackBall();
       speed = result[0];

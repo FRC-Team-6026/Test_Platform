@@ -48,6 +48,15 @@ public class PixyController{
         return speedrotation;
     }
 
+    public void turnLightOn(int r, int g, int b){
+        _pixy.setLamp((byte)1, (byte)1);
+        _pixy.setLED(r, g, b);
+    }
+
+    public void turnLightOff(){
+        _pixy.setLamp((byte)0, (byte)0);
+    }
+
     private Block getBiggestBlock() {
 		// Gets the number of "blocks", identified targets, that match signature 1 on the Pixy2,
 		// does not wait for new data if none is available,
