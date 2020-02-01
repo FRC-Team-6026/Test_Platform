@@ -27,6 +27,7 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private final XboxController _driverController = new XboxController(0);
   private final Drivetrain _drive = new Drivetrain();
+  private final PixyController _pixycontroller = new PixyController();
 
   /**
    * This function is run when the robot is first started up and should be
@@ -91,9 +92,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    var speed = -(_driverController.getY(Hand.kLeft));
-    var rotation = _driverController.getX(Hand.kRight);
-    _drive.arcadeDrive(speed, rotation);
+    drivetrainLogic();
   }
 
   /**
@@ -101,5 +100,21 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+  }
+
+  private void drivetrainLogic(){
+    var speed = 0.0;
+    var rotation = 0.0;
+
+    if(_driverController.getAButton()){
+      var result = _pixycontroller.trackBall();
+      speed = result[0];
+      rotation = result[1];
+    } else {
+      speed = -(_driverController.getY(Hand.kLeft));
+      rotation = _driverController.getX(Hand.kRight);
+    }
+
+    _drive.arcadeDrive(speed, rotation);
   }
 }
