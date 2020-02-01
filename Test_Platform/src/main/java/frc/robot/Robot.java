@@ -105,16 +105,19 @@ public class Robot extends TimedRobot {
   private void drivetrainLogic(){
     var speed = 0.0;
     var rotation = 0.0;
+    var filterDeadband = false;
 
     if(_driverController.getAButton()){
       var result = _pixycontroller.trackBall();
       speed = result[0];
       rotation = result[1];
+      filterDeadband = false;
     } else {
       speed = -(_driverController.getY(Hand.kLeft));
       rotation = _driverController.getX(Hand.kRight);
+      filterDeadband = true;
     }
 
-    _drive.arcadeDrive(speed, rotation);
+    _drive.arcadeDrive(speed, rotation, filterDeadband);
   }
 }

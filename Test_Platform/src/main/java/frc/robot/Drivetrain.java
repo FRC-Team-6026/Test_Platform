@@ -43,9 +43,9 @@ public class Drivetrain {
         config(_rightController, _rightCanEncoder);
     }
 
-    public void arcadeDrive(double speed, double rotation){
-        var filterspeed = filterInput(speed);
-        var filterrotation = filterInput(rotation);
+    public void arcadeDrive(double speed, double rotation, boolean filterDeadband){
+        var filterspeed = filterInput(speed, filterDeadband);
+        var filterrotation = filterInput(rotation, filterDeadband);
 
         var leftspeed = Math.max(Math.min(filterspeed + 0.5*filterrotation, 1.0), -1.0);
         var rightspeed = Math.max(Math.min(filterspeed - 0.5*filterrotation, 1.0), -1.0);
@@ -86,8 +86,8 @@ public class Drivetrain {
         controller.setFeedbackDevice(encoder);
     }
 
-    private double filterInput(double input){
-        if(Math.abs(input) <= kDeadband){
+    private double filterInput(double input, boolean filterDeadband){
+        if(filterDeadband && Math.abs(input) <= kDeadband){
             return 0;
         } else {
             if (input < 0) {
