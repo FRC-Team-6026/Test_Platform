@@ -1,46 +1,46 @@
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANPIDController;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.ControlType;
+import com.revrobotics.EncoderType;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Drivetrain {
-    public static final int kSlotIdx = 0;
-    public static final int kPIDLoopIdx = 0;
-    public static final int kTimeoutMs = 30;
-    public static final double kP = 0.25;
-    public static final double kI = 0.001;
-    public static final double kD = 20;
-    public static final double kF = 1023.0/7200.0;
-    public static final double Iz = 300;
-    public static final double PeakOut = 1.00;
-    public static final double kDeadband = 0.1;
-    private final WPI_VictorSPX _leftFront = new WPI_VictorSPX(2);
-    private final WPI_VictorSPX _rightFront = new WPI_VictorSPX(1);
-    private final WPI_TalonSRX _leftRear = new WPI_TalonSRX(4);
-    private final WPI_TalonSRX _rightRear = new WPI_TalonSRX(3);
+    private static final double kP = 5e-5;
+    private static final double kI = 1e-6;
+    private static final double kD = 0;
+    private static final double kF = 0;
+    private static final double kDeadband = 0.1;
+    private static final double kMaxRPM = 1000;
+    private final CANSparkMax _leftFront = new CANSparkMax(9, MotorType.kBrushless);
+    private final CANSparkMax _rightFront = new CANSparkMax(7, MotorType.kBrushless);
+    private final CANSparkMax _leftRear = new CANSparkMax(11, MotorType.kBrushless);
+    private final CANSparkMax _rightRear = new CANSparkMax(8, MotorType.kBrushless);
+    private final CANPIDController _leftController = _leftRear.getPIDController();
+    private final CANPIDController _rightController = _rightRear.getPIDController();
+    private final CANEncoder _leftCanEncoder = _leftRear.getEncoder();
+    private final CANEncoder _rightCanEncoder = _rightRear.getEncoder();
 
     public void init(){
-        _leftFront.configFactoryDefault();
-        _rightFront.configFactoryDefault();
-        _leftRear.configFactoryDefault();
-        _rightRear.configFactoryDefault();
+        _leftFront.restoreFactoryDefaults();
+        _rightFront.restoreFactoryDefaults();
+        _leftRear.restoreFactoryDefaults();
+        _rightRear.restoreFactoryDefaults();
 
         _leftFront.follow(_leftRear);
         _rightFront.follow(_rightRear);
 
-        _leftFront.setInverted(InvertType.FollowMaster);
-        _rightFront.setInverted(InvertType.FollowMaster);
-
         _rightRear.setInverted(true);
 
-        _leftRear.setSensorPhase(true);
-        _rightRear.setSensorPhase(true);
+        //_leftCanEncoder.setInverted(true);
+        //_rightCanEncoder.setInverted(true);
 
-        configPID(_leftRear);
-        configPID(_rightRear);
+        config(_leftController, _leftCanEncoder);
+        config(_rightController, _rightCanEncoder);
     }
 
     public void arcadeDrive(double speed, double rotation){
@@ -50,24 +50,40 @@ public class Drivetrain {
         var leftspeed = Math.max(Math.min(filterspeed + 0.5*filterrotation, 1.0), -1.0);
         var rightspeed = Math.max(Math.min(filterspeed - 0.5*filterrotation, 1.0), -1.0);
 
-        double leftVelocity_UnitsPer100ms = leftspeed *200 *4096.0 /600;
-        double rightVelocity_UnitPer100ms = rightspeed *200 *4096.0 /600;
+        double leftVelocity_RPM = leftspeed * kMaxRPM;
+        double rightVelocity_RPM = rightspeed * kMaxRPM;
 
-        _leftRear.set(ControlMode.Velocity, leftVelocity_UnitsPer100ms);
-        _rightRear.set(ControlMode.Velocity, rightVelocity_UnitPer100ms);
+        SmartDashboard.putNumber("speed", filterspeed);
+        SmartDashboard.putNumber("rotation", filterrotation);
+
+        SmartDashboard.putNumber("Left target RPM", leftVelocity_RPM);
+        SmartDashboard.putNumber("right target RPM", rightVelocity_RPM);
+
+        SmartDashboard.putNumber("left encoder velocity", _leftCanEncoder.getVelocity());
+        SmartDashboard.putNumber("right encoder velocity", _rightCanEncoder.getVelocity());
+
+        SmartDashboard.putNumber("right front current", _rightFront.getOutputCurrent());
+        SmartDashboard.putNumber("right rear current", _rightRear.getOutputCurrent());
+        SmartDashboard.putNumber("left front current", _leftFront.getOutputCurrent());
+        SmartDashboard.putNumber("left rear current", _leftRear.getOutputCurrent());
+
+        SmartDashboard.putNumber("right front temp", _rightFront.getMotorTemperature());
+        SmartDashboard.putNumber("right rear temp", _rightRear.getMotorTemperature());
+        SmartDashboard.putNumber("left front temp", _leftFront.getMotorTemperature());
+        SmartDashboard.putNumber("left rear temp", _leftRear.getMotorTemperature());
+
+        _leftController.setReference(leftVelocity_RPM, ControlType.kVelocity);
+        _rightController.setReference(rightVelocity_RPM, ControlType.kVelocity);
     }
 
-    private void configPID(WPI_TalonSRX talon){
-        talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
-        talon.configNominalOutputForward(0, kTimeoutMs);
-        talon.configNominalOutputReverse(0, kTimeoutMs);
-        talon.configPeakOutputForward(1, kTimeoutMs);
-        talon.configPeakOutputReverse(-1, kTimeoutMs);
-
-        talon.config_kF(kPIDLoopIdx, kF, kTimeoutMs);
-        talon.config_kP(kPIDLoopIdx, kP, kTimeoutMs);
-        talon.config_kI(kPIDLoopIdx, kI, kTimeoutMs);
-        talon.config_kD(kPIDLoopIdx, kD, kTimeoutMs);
+    private void config(CANPIDController controller, CANEncoder encoder){
+        //encoder.setVelocityConversionFactor(1.0/4096.0);
+        controller.setFF(kF);
+        controller.setP(kP);
+        controller.setI(kI);
+        controller.setD(kD);
+        controller.setOutputRange(-.5, .5);
+        controller.setFeedbackDevice(encoder);
     }
 
     private double filterInput(double input){
