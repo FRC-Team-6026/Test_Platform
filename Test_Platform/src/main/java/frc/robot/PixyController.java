@@ -12,7 +12,7 @@ public class PixyController{
     //private final int PixyHeight = 208;
     private final int targetXcenter = 158;
     private final int targetYcenter = 104;
-    private final int xErrorMax = 79;
+    private final int xErrorMax = 158;
     private final int yErrorMax = 52;
     private final double xP = 1.0/xErrorMax;
     private final double yP = 1.0/yErrorMax;
