@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.util.ArrayList;
 
+import edu.wpi.first.wpilibj.controller.PIDController;
 import io.github.pseudoresonance.pixy2api.Pixy2;
 import io.github.pseudoresonance.pixy2api.Pixy2CCC;
 import io.github.pseudoresonance.pixy2api.Pixy2.LinkType;
@@ -17,9 +18,12 @@ public class PixyController{
     private final double xP = 1.0/xErrorMax;
     private final double yP = 1.0/yErrorMax;
     private final Pixy2 _pixy = Pixy2.createInstance(LinkType.SPI);
+    private final PIDController _rotationPid = new PIDController(.001,0,0);
 
     public void init(){
         _pixy.init();
+        _rotationPid.setSetpoint(0);
+        _rotationPid.setTolerance(2);
     }
 
     /**
@@ -36,7 +40,7 @@ public class PixyController{
         biggestBlock.getAngle();
         var xError = biggestBlock.getX() - targetXcenter;
         var yError= biggestBlock.getY() - targetYcenter;
-        var rotation = xError * xP;
+        var rotation = _rotationPid.calculate(xError);
         var speed = yError * yP;
         rotation = Math.min(rotation, 1);
         rotation = Math.max(rotation, -1);
