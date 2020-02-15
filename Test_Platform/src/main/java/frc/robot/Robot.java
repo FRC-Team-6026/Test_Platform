@@ -110,8 +110,14 @@ public class Robot extends TimedRobot {
     var filterSpeedDeadband = false;
     var filterRotationDeadband = false;
 
-    if(_driverController.getAButtonPressed() || _driverController.getXButtonPressed()){
+    if(_driverController.getAButtonPressed()){
       _pixycontroller.turnLightOn(255, 255, 255);
+      _pixycontroller.setBrightness(30);
+    }
+
+    if(_driverController.getXButtonPressed()){
+      _pixycontroller.turnLightOn(255, 255, 255);
+      _pixycontroller.setBrightness(10);
     }
 
     if(_driverController.getAButtonReleased() || _driverController.getXButtonReleased()){

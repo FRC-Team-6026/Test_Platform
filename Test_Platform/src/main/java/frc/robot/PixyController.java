@@ -88,6 +88,10 @@ public class PixyController{
         _pixy.setLamp((byte)0, (byte)0);
     }
 
+    public void setBrightness(int brightness){
+        _pixy.setCameraBrightness(brightness);
+    }
+
     private Block getBiggestBlock() {
 		// Gets the number of "blocks", identified targets, that match signature 1 on the Pixy2,
 		// does not wait for new data if none is available,
@@ -154,7 +158,7 @@ public class PixyController{
             for(var right : rightCandidates) {
                 var topYDiff = Math.abs(left.getY0() - right.getY0());
                 var botYDiff = Math.abs(left.getY1() - right.getY1());
-                if (topYDiff > 10 || botYDiff > 10) {
+                if (topYDiff > 5 || botYDiff > 5) {
                     continue;
                 }
                 var leftRightVectors = new Vector[2];
