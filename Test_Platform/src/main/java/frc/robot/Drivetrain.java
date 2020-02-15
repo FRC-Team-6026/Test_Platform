@@ -42,9 +42,9 @@ public class Drivetrain {
         config(_rightController, _rightCanEncoder);
     }
 
-    public void arcadeDrive(double speed, double rotation, boolean filterDeadband){
-        var filterspeed = filterInput(speed, filterDeadband);
-        var filterrotation = filterInput(rotation, filterDeadband);
+    public void arcadeDrive(double speed, boolean filterSpeedDeadband, double rotation, boolean filterRotationDeadband){
+        var filterspeed = filterInput(speed, filterSpeedDeadband);
+        var filterrotation = filterInput(rotation, filterRotationDeadband);
 
         var leftspeed = Math.max(Math.min(filterspeed + 0.65*filterrotation, 1.0), -1.0);
         var rightspeed = Math.max(Math.min(filterspeed - 0.65*filterrotation, 1.0), -1.0);

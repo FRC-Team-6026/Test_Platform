@@ -106,7 +106,8 @@ public class Robot extends TimedRobot {
   private void drivetrainLogic(){
     var speed = 0.0;
     var rotation = 0.0;
-    var filterDeadband = false;
+    var filterSpeedDeadband = false;
+    var filterRotationDeadband = false;
 
     if(_driverController.getAButtonPressed()){
       _pixycontroller.turnLightOn(255, 255, 255);
@@ -117,16 +118,17 @@ public class Robot extends TimedRobot {
     }
 
     if(_driverController.getAButton()){
-      var result = _pixycontroller.trackBall();
-      speed = result[0];
-      rotation = result[1];
-      filterDeadband = false;
+      speed = -(_driverController.getY(Hand.kLeft));
+      rotation = _pixycontroller.trackBall();
+      filterSpeedDeadband = true;
+      filterRotationDeadband = false;
     } else {
       speed = -(_driverController.getY(Hand.kLeft));
       rotation = _driverController.getX(Hand.kRight);
-      filterDeadband = true;
+      filterSpeedDeadband = true;
+      filterRotationDeadband = true;
     }
 
-    _drive.arcadeDrive(speed, rotation, filterDeadband);
+    _drive.arcadeDrive(speed, filterSpeedDeadband, rotation, filterRotationDeadband);
   }
 }
