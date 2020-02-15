@@ -3,26 +3,37 @@ package frc.robot;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableRegistry;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import io.github.pseudoresonance.pixy2api.Pixy2;
 import io.github.pseudoresonance.pixy2api.Pixy2CCC;
+import io.github.pseudoresonance.pixy2api.Pixy2Line;
 import io.github.pseudoresonance.pixy2api.Pixy2.LinkType;
 import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
+import io.github.pseudoresonance.pixy2api.Pixy2Line.Vector;
 
 public class PixyController{
-    //private final int PixyWidth = 316;
-    //private final int PixyHeight = 208;
-    private final int targetXcenter = 158;
+    //Pixy Width in CCC mode = 316
+    //Pixy Height in CCC mode = 208
+    //Pixy Width in line mode = 78
+    //Pixy Height in line mode = 51
     private final Pixy2 _pixy = Pixy2.createInstance(LinkType.SPI);
-    private final PIDController _rotationPid = new PIDController(.001,0,0);
+    private final PIDController _ballPid = new PIDController(0.001, 0, 0);
+    private final PIDController _targetPid = new PIDController(0.02, 0, 0);
+    private double _previousTargetRotation = 0;
 
     public void init(){
         _pixy.init();
-        _rotationPid.setSetpoint(0);
-        _rotationPid.setTolerance(2);
+        _ballPid.setSetpoint(158);
+        _ballPid.setTolerance(2);
+        SendableRegistry.setName(_ballPid, "Pixy Controller", "Ball PID");
+        _targetPid.setSetpoint(39);
+        _targetPid.setTolerance(2);
+        SendableRegistry.setName(_targetPid, "Pixy Controller", "Target PID");
     }
 
     /**
-     * Calculates the speed and rotation necessary to track the yellow
+     * Calculates the rotation necessary to track the yellow
      * game ball.
      * @return A turn value between -1 and 1.
      */
@@ -32,10 +43,39 @@ public class PixyController{
             return 0;
         }
         biggestBlock.getAngle();
-        var xError = biggestBlock.getX() - targetXcenter;
-        var rotation = _rotationPid.calculate(xError);
+        var midpointX = biggestBlock.getX();
+        SmartDashboard.putNumber("Pixy X midpoint", midpointX);
+        //negative rotation inceases the measured x value, so the PID
+        //response has to be inverted
+        var rotation = -_ballPid.calculate(midpointX);
         rotation = Math.min(rotation, 1);
         rotation = Math.max(rotation, -1);
+        return rotation;
+    }
+
+    /**
+     * Calculates the rotation necessary to track the upper
+     * target
+     * @return
+     */
+    public double trackTarget() {
+        var leftAndRightVector = getLeftAndRightVector();
+        if (leftAndRightVector == null){
+            _previousTargetRotation = _previousTargetRotation * .5;
+            return _previousTargetRotation;
+        }
+        var left = leftAndRightVector[0];
+        var right = leftAndRightVector[1];
+        var midpointX = left.getX0() + ((right.getX0() - left.getX0()) / 2.0);
+        SmartDashboard.putNumber("Pixy Top left X", left.getX0());
+        SmartDashboard.putNumber("Pixy Top right X", right.getX0());
+        SmartDashboard.putNumber("Pixy X midpoint", midpointX);
+        //negative rotation increases the measured x so the PID response
+        //has to be inverted
+        var rotation = -_targetPid.calculate(midpointX);
+        rotation = Math.min(rotation, 1);
+        rotation = Math.max(rotation, -1);
+        _previousTargetRotation = rotation;
         return rotation;
     }
 
@@ -66,5 +106,63 @@ public class PixyController{
 			}
 		}
 		return largestBlock;
-	}
+    }
+    
+    private Vector[] getLeftAndRightVector() {
+        var line = _pixy.getLine();
+        line.getFeatures(Pixy2Line.LINE_GET_ALL_FEATURES, Pixy2Line.LINE_VECTOR, false);
+        var vectors = line.getVectors();
+        if (vectors == null){
+            return null;
+        }
+        ArrayList<Vector> leftCandidates = new ArrayList<Vector>();
+        ArrayList<Vector> rightCandidates = new ArrayList<Vector>();
+        for(var v : vectors){
+            var topX = 0;
+            var topY = 0;
+            var botX = 0;
+            var botY = 0;
+            //Y increased going down in the image, so a small value is "higher"
+            if (v.getY0() < v.getY1()) {
+                topX = v.getX0();
+                topY = v.getY0();
+                botX = v.getX1();
+                botY = v.getY1();
+            } else {
+                topX = v.getX1();
+                topY = v.getY1();
+                botX = v.getX0();
+                botY = v.getY0();
+            }
+            //The Y diff should always be positive
+            var slope = (double)(botY - topY) / (botX - topX);
+
+            var absSlope = Math.abs(slope);
+            //check to make sure slope is approximately 50 to 70 degree
+            //theoretically it should be 60 degrees.
+            if (absSlope <= 1.19 || absSlope >= 2.75) {
+                continue;
+            }
+
+            if (slope < 0) {
+                rightCandidates.add(line.new Vector(topX,topY,botX,botY, 0, 0));
+            } else {
+                leftCandidates.add(line.new Vector(topX,topY,botX,botY, 0, 0));
+            }
+        }
+        for(var left : leftCandidates) {
+            for(var right : rightCandidates) {
+                var topYDiff = Math.abs(left.getY0() - right.getY0());
+                var botYDiff = Math.abs(left.getY1() - right.getY1());
+                if (topYDiff > 10 || botYDiff > 10) {
+                    continue;
+                }
+                var leftRightVectors = new Vector[2];
+                leftRightVectors[0] = left;
+                leftRightVectors[1] = right;
+                return leftRightVectors;
+            }
+        }
+        return null;
+    }
 }

@@ -101,6 +101,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+    drivetrainLogic();
   }
 
   private void drivetrainLogic(){
@@ -109,17 +110,22 @@ public class Robot extends TimedRobot {
     var filterSpeedDeadband = false;
     var filterRotationDeadband = false;
 
-    if(_driverController.getAButtonPressed()){
+    if(_driverController.getAButtonPressed() || _driverController.getXButtonPressed()){
       _pixycontroller.turnLightOn(255, 255, 255);
     }
 
-    if(_driverController.getAButtonReleased()){
+    if(_driverController.getAButtonReleased() || _driverController.getXButtonReleased()){
       _pixycontroller.turnLightOff();
     }
 
     if(_driverController.getAButton()){
       speed = -(_driverController.getY(Hand.kLeft));
       rotation = _pixycontroller.trackBall();
+      filterSpeedDeadband = true;
+      filterRotationDeadband = false;
+    } else if (_driverController.getXButton()) {
+      speed = -(_driverController.getY(Hand.kLeft));
+      rotation = _pixycontroller.trackTarget();
       filterSpeedDeadband = true;
       filterRotationDeadband = false;
     } else {
