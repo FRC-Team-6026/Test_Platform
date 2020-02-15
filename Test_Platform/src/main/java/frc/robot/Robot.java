@@ -27,6 +27,7 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private final XboxController _driverController = new XboxController(0);
   private final Drivetrain _drive = new Drivetrain();
+  private final PixyController _pixycontroller = new PixyController();
 
   /**
    * This function is run when the robot is first started up and should be
@@ -38,6 +39,7 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
     _drive.init();
+    _pixycontroller.init();
   }
 
   /**
@@ -91,9 +93,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    var speed = -(_driverController.getY(Hand.kLeft));
-    var rotation = _driverController.getX(Hand.kRight);
-    _drive.arcadeDrive(speed, rotation);
+    drivetrainLogic();
   }
 
   /**
@@ -101,5 +101,40 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+    drivetrainLogic();
+  }
+
+  private void drivetrainLogic(){
+    var speed = 0.0;
+    var rotation = 0.0;
+    var filterSpeedDeadband = false;
+    var filterRotationDeadband = false;
+
+    if(_driverController.getAButtonPressed() || _driverController.getXButtonPressed()){
+      _pixycontroller.turnLightOn(255, 255, 255);
+    }
+
+    if(_driverController.getAButtonReleased() || _driverController.getXButtonReleased()){
+      _pixycontroller.turnLightOff();
+    }
+
+    if(_driverController.getAButton()){
+      speed = -(_driverController.getY(Hand.kLeft));
+      rotation = _pixycontroller.trackBall();
+      filterSpeedDeadband = true;
+      filterRotationDeadband = false;
+    } else if (_driverController.getXButton()) {
+      speed = -(_driverController.getY(Hand.kLeft));
+      rotation = _pixycontroller.trackTarget();
+      filterSpeedDeadband = true;
+      filterRotationDeadband = false;
+    } else {
+      speed = -(_driverController.getY(Hand.kLeft));
+      rotation = _driverController.getX(Hand.kRight);
+      filterSpeedDeadband = true;
+      filterRotationDeadband = true;
+    }
+
+    _drive.arcadeDrive(speed, filterSpeedDeadband, rotation, filterRotationDeadband);
   }
 }
