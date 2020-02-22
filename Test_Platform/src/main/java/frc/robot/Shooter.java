@@ -3,34 +3,36 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter {
-    private final WPI_TalonSRX _top = new WPI_TalonSRX(99);
-    private final WPI_TalonSRX _bottom = new WPI_TalonSRX(98);
+    private final TalonSRX _top = new TalonSRX(3);
+    private final TalonSRX _bottom = new TalonSRX(4);
     private final int _pidSlot = 0;
-    private final int _timeoutMs = 30;
-    private final double _p = 0.2;
+    private final int _timeoutMs = 50;
+    private final double _p = 0.0001;
     private final double _i = 0;
     private final double _d = 0;
-    private final double _f = 0.2;
+    private final double _f = 0.001;
     private final double _peakOutput = 1;
+    private final double _maxVelocityPulsesPer100ms = 27000;
+    private final double _speedDiff = 0;
 
     public void init(){
         _top.configFactoryDefault();
         _bottom.configFactoryDefault();
 
-        _top.setNeutralMode(NeutralMode.Brake);
-        _bottom.setNeutralMode(NeutralMode.Brake);
+        _top.setNeutralMode(NeutralMode.Coast);
+        _bottom.setNeutralMode(NeutralMode.Coast);
 
         _top.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, _pidSlot, _timeoutMs);
         _bottom.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, _pidSlot, _timeoutMs);
 
         _top.setInverted(false);
         _top.setSensorPhase(false);
-        _bottom.setInverted(false);
+        _bottom.setInverted(true);
         _bottom.setSensorPhase(false);
 
         _top.configNominalOutputForward(0, _timeoutMs);
@@ -57,12 +59,16 @@ public class Shooter {
 
     /**
      * Runs the firing mechanism at the set power
-     * @param power power output 0 to 1
+     * @param power power output -1 to 1
      */
     public void fire(double power){
-        _top.set(ControlMode.PercentOutput, power);
-        _bottom.set(ControlMode.PercentOutput, power);
 
+        var velocity = power * _maxVelocityPulsesPer100ms;
+        var velocityTop = Math.max(velocity - _speedDiff, 0);
+        _top.set(ControlMode.Velocity, velocityTop);
+        _bottom.set(ControlMode.Velocity, -velocity);
+
+        SmartDashboard.putNumber("Target velocity pulses/100ms", velocity);
         SmartDashboard.putNumber("Top velocity pulses/100ms", _top.getSelectedSensorVelocity());
         SmartDashboard.putNumber("Bottom velocity pulses/100ms", _bottom.getSelectedSensorVelocity());
     }

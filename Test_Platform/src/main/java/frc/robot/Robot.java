@@ -29,6 +29,7 @@ public class Robot extends TimedRobot {
   //private final Drivetrain _drive = new Drivetrain();
   private final PixyController _pixycontroller = new PixyController();
   private final Shooter _shooter = new Shooter();
+  private double _shooterPower = 0;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -103,8 +104,18 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
     //drivetrainLogic();
-    var speed = -_driverController.getY(Hand.kLeft);
-    _shooter.fire(speed);
+    if(_driverController.getBumperPressed(Hand.kLeft)){
+      _shooterPower -= 0.05;
+      _shooterPower = Math.max(_shooterPower, 0);
+    }
+    if(_driverController.getBumperPressed(Hand.kRight)){
+      _shooterPower += 0.05;
+      _shooterPower = Math.min(_shooterPower, 1);
+    }
+    if(_driverController.getXButtonPressed()){
+      _shooterPower = 0;
+    }
+    _shooter.fire(_shooterPower);
   }
 
   private void drivetrainLogic(){
