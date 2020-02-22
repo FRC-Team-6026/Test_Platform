@@ -1,8 +1,11 @@
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter {
     private final WPI_TalonSRX _top = new WPI_TalonSRX(99);
@@ -13,8 +16,7 @@ public class Shooter {
     private final double _i = 0;
     private final double _d = 0;
     private final double _f = 0.2;
-    private final double _iZone = 100;
-    private final double _peakOutput = 0.5;
+    private final double _peakOutput = 1;
 
     public void init(){
         _top.configFactoryDefault();
@@ -58,7 +60,11 @@ public class Shooter {
      * @param power power output 0 to 1
      */
     public void fire(double power){
-        
+        _top.set(ControlMode.PercentOutput, power);
+        _bottom.set(ControlMode.PercentOutput, power);
+
+        SmartDashboard.putNumber("Top velocity pulses/100ms", _top.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Bottom velocity pulses/100ms", _bottom.getSelectedSensorVelocity());
     }
 
     public boolean isAtSetPower(double power){
