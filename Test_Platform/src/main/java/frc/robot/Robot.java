@@ -26,8 +26,9 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private final XboxController _driverController = new XboxController(0);
-  private final Drivetrain _drive = new Drivetrain();
+  //private final Drivetrain _drive = new Drivetrain();
   private final PixyController _pixycontroller = new PixyController();
+  private final Conveyor _conveyor = new Conveyor();
 
   /**
    * This function is run when the robot is first started up and should be
@@ -38,7 +39,7 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-    _drive.init();
+    //_drive.init();
     _pixycontroller.init();
   }
 
@@ -93,7 +94,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    drivetrainLogic();
+    //drivetrainLogic();
   }
 
   /**
@@ -101,7 +102,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
-    drivetrainLogic();
+    var ballInPosition = _conveyor.isBallInLoadingPosition();
+    SmartDashboard.putBoolean("Ball In Position", ballInPosition);
+    //drivetrainLogic();
   }
 
   private void drivetrainLogic(){
@@ -141,6 +144,6 @@ public class Robot extends TimedRobot {
       filterRotationDeadband = true;
     }
 
-    _drive.arcadeDrive(speed, filterSpeedDeadband, rotation, filterRotationDeadband);
+    //_drive.arcadeDrive(speed, filterSpeedDeadband, rotation, filterRotationDeadband);
   }
 }
