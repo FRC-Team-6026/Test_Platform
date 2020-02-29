@@ -29,7 +29,6 @@ public class Robot extends TimedRobot {
   private final Drivetrain _drive = new Drivetrain();
   private final PixyController _pixycontroller = new PixyController();
   private final Shooter _shooter = new Shooter();
-  private double _shooterPower = 0;
   private final Conveyor _conveyor = new Conveyor();
 
   /**
@@ -99,6 +98,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     drivetrainLogic();
     conveyorLogic();
+    shooterLogic();
   }
 
   /**
@@ -106,22 +106,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
-    if(_driverController.getBumperPressed(Hand.kLeft)){
-      _shooterPower -= 0.05;
-      _shooterPower = Math.max(_shooterPower, 0);
-    }
-    if(_driverController.getBumperPressed(Hand.kRight)){
-      _shooterPower += 0.05;
-      _shooterPower = Math.min(_shooterPower, 1);
-    }
-    if(_driverController.getXButtonPressed()){
-      _shooterPower = 0;
-    }
-    _shooter.fire(_shooterPower);
     var ballInPosition = _conveyor.isBallInLoadingPosition();
     SmartDashboard.putBoolean("Ball In Position", ballInPosition);
     drivetrainLogic();
     conveyorLogic();
+    shooterLogic();
   }
 
   private void drivetrainLogic(){
@@ -171,6 +160,19 @@ public class Robot extends TimedRobot {
       _conveyor.run(-0.10);
     } else {
       _conveyor.run(0);
+    }
+  }
+
+  private void shooterLogic(){
+    var trigger = _driverController.getTriggerAxis(Hand.kRight);
+    if (trigger <= 0.1){
+      return;
+    }
+
+    _shooter.fire(trigger);
+
+    if (_shooter.isAtSetPower(trigger)){
+      _conveyor.run(0.10);
     }
   }
 }
