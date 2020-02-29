@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
   private final XboxController _driverController = new XboxController(0);
   private final Drivetrain _drive = new Drivetrain();
   private final PixyController _pixycontroller = new PixyController();
-  private final Shooter _shooter = new Shooter();
+  //private final Shooter _shooter = new Shooter();
   private final Conveyor _conveyor = new Conveyor();
 
   /**
@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
     _drive.init();
     _pixycontroller.init();
-    _shooter.init();
+    //_shooter.init();
     _conveyor.init();
   }
 
@@ -170,10 +170,10 @@ public class Robot extends TimedRobot {
       return;
     }
 
-    _shooter.fire(trigger);
+    //_shooter.fire(trigger);
 
-    if (_shooter.isAtSetPower(trigger)){
-      _conveyor.run(0.10);
-    }
+    //if (_shooter.isAtSetPower(trigger)){
+    //  _conveyor.run(0.10);
+    //}
   }
 }
