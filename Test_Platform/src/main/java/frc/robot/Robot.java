@@ -26,10 +26,11 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private final XboxController _driverController = new XboxController(0);
-  //private final Drivetrain _drive = new Drivetrain();
+  private final Drivetrain _drive = new Drivetrain();
   private final PixyController _pixycontroller = new PixyController();
   private final Shooter _shooter = new Shooter();
   private double _shooterPower = 0;
+  private final Conveyor _conveyor = new Conveyor();
 
   /**
    * This function is run when the robot is first started up and should be
@@ -40,8 +41,9 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-    //_drive.init();
+    _drive.init();
     _pixycontroller.init();
+    _conveyor.init();
   }
 
   /**
@@ -96,6 +98,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     drivetrainLogic();
+    conveyorLogic();
   }
 
   /**
@@ -103,7 +106,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
-    //drivetrainLogic();
     if(_driverController.getBumperPressed(Hand.kLeft)){
       _shooterPower -= 0.05;
       _shooterPower = Math.max(_shooterPower, 0);
@@ -116,6 +118,10 @@ public class Robot extends TimedRobot {
       _shooterPower = 0;
     }
     _shooter.fire(_shooterPower);
+    var ballInPosition = _conveyor.isBallInLoadingPosition();
+    SmartDashboard.putBoolean("Ball In Position", ballInPosition);
+    drivetrainLogic();
+    conveyorLogic();
   }
 
   private void drivetrainLogic(){
@@ -155,6 +161,16 @@ public class Robot extends TimedRobot {
       filterRotationDeadband = true;
     }
 
-    //_drive.arcadeDrive(speed, filterSpeedDeadband, rotation, filterRotationDeadband);
+    _drive.arcadeDrive(speed, filterSpeedDeadband, rotation, filterRotationDeadband);
+  }
+
+  private void conveyorLogic(){
+    if (_driverController.getBumper(Hand.kRight)){
+      _conveyor.run(0.10);
+    } else if (_driverController.getBumper(Hand.kLeft)){
+      _conveyor.run(-0.10);
+    } else {
+      _conveyor.run(0);
+    }
   }
 }
