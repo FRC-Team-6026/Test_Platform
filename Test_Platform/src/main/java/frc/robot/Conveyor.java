@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Conveyor {
     private final I2C.Port _i2cPort = I2C.Port.kOnboard;
     private final ColorSensorV3 _colorSensor = new ColorSensorV3(_i2cPort);
-    private final VictorSPX _motor = new VictorSPX(99);
+    private final VictorSPX _motor = new VictorSPX(2);
 
     public void init(){
         _motor.configFactoryDefault();
