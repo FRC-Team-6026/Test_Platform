@@ -17,9 +17,9 @@ public class Drivetrain {
     private static final double kMaxRpm = 1500;
     private static final double kRotationDiffRpm = 1000;
     private final CANSparkMax _leftFront = new CANSparkMax(9, MotorType.kBrushless);
-    private final CANSparkMax _rightFront = new CANSparkMax(7, MotorType.kBrushless);
+    private final CANSparkMax _rightFront = new CANSparkMax(8, MotorType.kBrushless);
     private final CANSparkMax _leftRear = new CANSparkMax(11, MotorType.kBrushless);
-    private final CANSparkMax _rightRear = new CANSparkMax(8, MotorType.kBrushless);
+    private final CANSparkMax _rightRear = new CANSparkMax(7, MotorType.kBrushless);
     private final CANPIDController _leftController = _leftRear.getPIDController();
     private final CANPIDController _rightController = _rightRear.getPIDController();
     private final CANEncoder _leftCanEncoder = _leftRear.getEncoder();
