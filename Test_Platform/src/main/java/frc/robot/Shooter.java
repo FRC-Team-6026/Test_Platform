@@ -19,7 +19,7 @@ public class Shooter {
     private final double _peakOutput = 1;
     private final double _maxVelocityPulsesPer100ms = 27000;
     private final double _speedDiff = 5000;
-    private final double _maxDiff = 1000;
+    private final double _maxDiff = 500;
 
     public void init(){
         _top.configFactoryDefault();
