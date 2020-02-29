@@ -18,7 +18,8 @@ public class Shooter {
     private final double _f = 0.001;
     private final double _peakOutput = 1;
     private final double _maxVelocityPulsesPer100ms = 27000;
-    private final double _speedDiff = 0;
+    private final double _speedDiff = 5000;
+    private final double _maxDiff = 1000;
 
     public void init(){
         _top.configFactoryDefault();
@@ -63,18 +64,26 @@ public class Shooter {
      */
     public void fire(double power){
 
-        var velocity = power * _maxVelocityPulsesPer100ms;
-        var velocityTop = Math.max(velocity - _speedDiff, 0);
-        _top.set(ControlMode.Velocity, velocityTop);
-        _bottom.set(ControlMode.Velocity, -velocity);
+        var velocities = getVelocities(power);
+        _top.set(ControlMode.Velocity, velocities[1]);
+        _bottom.set(ControlMode.Velocity, -velocities[0]);
 
-        SmartDashboard.putNumber("Target velocity pulses/100ms", velocity);
+        SmartDashboard.putNumber("Target velocity pulses/100ms", velocities[0]);
         SmartDashboard.putNumber("Top velocity pulses/100ms", _top.getSelectedSensorVelocity());
         SmartDashboard.putNumber("Bottom velocity pulses/100ms", _bottom.getSelectedSensorVelocity());
     }
 
     public boolean isAtSetPower(double power){
-        return false;
+        var velocities = getVelocities(power);
+        var feedbackVelocity = _top.getSelectedSensorVelocity();
+        var feedbackTopVelocity = _bottom.getSelectedSensorVelocity();
+        var bottomDiff = Math.abs(velocities[0] - feedbackVelocity);
+        var topDiff = Math.abs(velocities[1] - feedbackTopVelocity);
+        if (bottomDiff < _maxDiff && topDiff < _maxDiff){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -89,5 +98,13 @@ public class Shooter {
      */
     public void closeGate(){
 
+    }
+
+    private double[] getVelocities(double power)
+    {
+        var velocity = power * _maxVelocityPulsesPer100ms;
+        var velocityTop = Math.max(velocity - _speedDiff, 0);
+        double[] velocities = {velocity, velocityTop};
+        return velocities;
     }
 }
