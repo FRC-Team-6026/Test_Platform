@@ -56,6 +56,8 @@ public class Shooter {
         _bottom.config_kI(_pidSlot, _i, _timeoutMs);
         _bottom.config_kD(_pidSlot, _d, _timeoutMs);
 
+        _top.configClosedloopRamp(0.5, _timeoutMs);
+        _bottom.configClosedloopRamp(0.5, _timeoutMs);
     }
 
     /**
