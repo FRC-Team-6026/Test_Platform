@@ -42,6 +42,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
     _drive.init();
     _pixycontroller.init();
+    _shooter.init();
     _conveyor.init();
   }
 
