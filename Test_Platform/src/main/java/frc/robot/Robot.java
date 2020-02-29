@@ -28,6 +28,7 @@ public class Robot extends TimedRobot {
   private final XboxController _driverController = new XboxController(0);
   private final Drivetrain _drive = new Drivetrain();
   private final PixyController _pixycontroller = new PixyController();
+  private final Conveyor _conveyor = new Conveyor();
 
   /**
    * This function is run when the robot is first started up and should be
@@ -40,6 +41,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
     _drive.init();
     _pixycontroller.init();
+    _conveyor.init();
   }
 
   /**
@@ -94,6 +96,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     drivetrainLogic();
+    conveyorLogic();
   }
 
   /**
@@ -101,7 +104,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+    var ballInPosition = _conveyor.isBallInLoadingPosition();
+    SmartDashboard.putBoolean("Ball In Position", ballInPosition);
     drivetrainLogic();
+    conveyorLogic();
   }
 
   private void drivetrainLogic(){
@@ -142,5 +148,15 @@ public class Robot extends TimedRobot {
     }
 
     _drive.arcadeDrive(speed, filterSpeedDeadband, rotation, filterRotationDeadband);
+  }
+
+  private void conveyorLogic(){
+    if (_driverController.getBumper(Hand.kRight)){
+      _conveyor.run(0.10);
+    } else if (_driverController.getBumper(Hand.kLeft)){
+      _conveyor.run(-0.10);
+    } else {
+      _conveyor.run(0);
+    }
   }
 }
