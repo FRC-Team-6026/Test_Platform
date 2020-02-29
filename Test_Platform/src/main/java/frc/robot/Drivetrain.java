@@ -13,8 +13,9 @@ public class Drivetrain {
     private static final double kI = 1e-6;
     private static final double kD = 0;
     private static final double kF = 0;
-    private static final double kDeadband = 0.15;
-    private static final double kMaxRPM = 1500;
+    private static final double kDeadband = 0.17;
+    private static final double kMaxRpm = 1500;
+    private static final double kRotationDiffRpm = 1000;
     private final CANSparkMax _leftFront = new CANSparkMax(9, MotorType.kBrushless);
     private final CANSparkMax _rightFront = new CANSparkMax(7, MotorType.kBrushless);
     private final CANSparkMax _leftRear = new CANSparkMax(11, MotorType.kBrushless);
@@ -48,20 +49,28 @@ public class Drivetrain {
     }
 
     public void arcadeDrive(double speed, boolean filterSpeedDeadband, double rotation, boolean filterRotationDeadband){
-        var filterspeed = filterInput(speed, filterSpeedDeadband);
-        var filterrotation = filterInput(rotation, filterRotationDeadband);
+        var filterSpeed = filterInput(speed, filterSpeedDeadband);
+        var filterRotation = filterInput(rotation, filterRotationDeadband);
 
-        var leftspeed = Math.max(Math.min(filterspeed + 0.65*filterrotation, 1.0), -1.0);
-        var rightspeed = Math.max(Math.min(filterspeed - 0.65*filterrotation, 1.0), -1.0);
+        var leftLinearRpm = filterSpeed * kMaxRpm;
+        var rightLinearRpm = filterSpeed * kMaxRpm;
+        var leftRotationRpm = filterRotation * kRotationDiffRpm;
+        var rightRotationRpm = -filterRotation * kRotationDiffRpm;
 
-        double leftVelocity_RPM = leftspeed * kMaxRPM;
-        double rightVelocity_RPM = rightspeed * kMaxRPM;
+        var leftVelocityRpm = leftLinearRpm + leftRotationRpm;
+        var rightVelocityRpm = rightLinearRpm + rightRotationRpm;
 
-        SmartDashboard.putNumber("speed", filterspeed);
-        SmartDashboard.putNumber("rotation", filterrotation);
+        //limit velocity to +- kMaxRpm
+        leftVelocityRpm = Math.min(leftVelocityRpm, kMaxRpm);
+        leftVelocityRpm = Math.max(leftVelocityRpm, -kMaxRpm);
+        rightVelocityRpm = Math.min(rightVelocityRpm, kMaxRpm);
+        rightVelocityRpm = Math.max(rightVelocityRpm, -kMaxRpm);
 
-        SmartDashboard.putNumber("Left target RPM", leftVelocity_RPM);
-        SmartDashboard.putNumber("right target RPM", rightVelocity_RPM);
+        SmartDashboard.putNumber("speed", filterSpeed);
+        SmartDashboard.putNumber("rotation", filterRotation);
+
+        SmartDashboard.putNumber("Left target RPM", leftVelocityRpm);
+        SmartDashboard.putNumber("right target RPM", rightVelocityRpm);
 
         SmartDashboard.putNumber("left encoder velocity", _leftCanEncoder.getVelocity());
         SmartDashboard.putNumber("right encoder velocity", _rightCanEncoder.getVelocity());
@@ -76,8 +85,8 @@ public class Drivetrain {
         SmartDashboard.putNumber("left front temp", _leftFront.getMotorTemperature());
         SmartDashboard.putNumber("left rear temp", _leftRear.getMotorTemperature());
 
-        _leftController.setReference(leftVelocity_RPM, ControlType.kVelocity);
-        _rightController.setReference(rightVelocity_RPM, ControlType.kVelocity);
+        _leftController.setReference(leftVelocityRpm, ControlType.kVelocity);
+        _rightController.setReference(rightVelocityRpm, ControlType.kVelocity);
     }
 
     private void config(CANPIDController controller, CANEncoder encoder){
