@@ -28,6 +28,7 @@ public class Robot extends TimedRobot {
   private final XboxController _driverController = new XboxController(0);
   private final Drivetrain _drive = new Drivetrain();
   private final PixyController _pixycontroller = new PixyController();
+  private final Shooter _shooter = new Shooter();
   private final Conveyor _conveyor = new Conveyor();
 
   /**
@@ -97,6 +98,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     drivetrainLogic();
     conveyorLogic();
+    shooterLogic();
   }
 
   /**
@@ -108,6 +110,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Ball In Position", ballInPosition);
     drivetrainLogic();
     conveyorLogic();
+    shooterLogic();
   }
 
   private void drivetrainLogic(){
@@ -157,6 +160,19 @@ public class Robot extends TimedRobot {
       _conveyor.run(-0.10);
     } else {
       _conveyor.run(0);
+    }
+  }
+
+  private void shooterLogic(){
+    var trigger = _driverController.getTriggerAxis(Hand.kRight);
+    if (trigger <= 0.1){
+      return;
+    }
+
+    _shooter.fire(trigger);
+
+    if (_shooter.isAtSetPower(trigger)){
+      _conveyor.run(0.10);
     }
   }
 }
