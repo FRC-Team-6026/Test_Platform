@@ -8,8 +8,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter {
-    private final TalonSRX _top = new TalonSRX(3);
-    private final TalonSRX _bottom = new TalonSRX(4);
+    private final TalonSRX _top = new TalonSRX(4);
+    private final TalonSRX _bottom = new TalonSRX(3);
     private final int _pidSlot = 0;
     private final int _timeoutMs = 50;
     private final double _p = 0.0001;
