@@ -13,7 +13,9 @@ public class Drivetrain {
     private static final double kI = 1e-6;
     private static final double kD = 0;
     private static final double kF = 0;
-    private static final double kDeadband = 0.17;
+    private static final double kDeadbandBottom = 0.17;
+    private static final double kDeadbandTop = 0.95;
+    private static final double kDeadbandRatio = 1 / (kDeadbandTop - kDeadbandBottom);
     private static final double kMaxRpm = 1500;
     private static final double kRotationDiffRpm = 1000;
     private final CANSparkMax _leftFront = new CANSparkMax(9, MotorType.kBrushless);
@@ -99,14 +101,28 @@ public class Drivetrain {
         controller.setFeedbackDevice(encoder);
     }
 
+    /**
+     * Filters an input and filters for deadband optionally. Squares the input value
+     * and if filtering for deadband normalizes the output -1 to 1.
+     * @param input input to be filtered
+     * @param filterDeadband whether or not to filter deadband
+     * @return returns a normalized value -1 to 1 where +- kDeadbandBottom normalizes to 0
+     * and +- kDeadbandTop normalizes to +-1
+     */
     private double filterInput(double input, boolean filterDeadband){
-        if(filterDeadband && Math.abs(input) <= kDeadband){
+        if(filterDeadband && Math.abs(input) <= kDeadbandBottom){
             return 0;
         } else {
-            if (input < 0) {
-                return input * input * -1;
+            var filteredInput = 0.0;
+            if (filterDeadband){
+                filteredInput = (input - kDeadbandBottom) * kDeadbandRatio;
             } else {
-                return input * input;
+                filteredInput = input;
+            }
+            if (filteredInput < 0) {
+                return Math.max(filteredInput * filteredInput * -1, -1);
+            } else {
+                return Math.min(filteredInput * filteredInput, 1);
             }
         }
     }
