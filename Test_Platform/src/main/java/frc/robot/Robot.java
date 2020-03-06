@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
   private final XboxController _driverController = new XboxController(0);
   private final Drivetrain _drive = new Drivetrain();
   private final PixyController _pixycontroller = new PixyController();
-  //private final Shooter _shooter = new Shooter();
+  private final Shooter _shooter = new Shooter();
   private final Conveyor _conveyor = new Conveyor();
 
   /**
@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
     _drive.init();
     _pixycontroller.init();
-    //_shooter.init();
+    _shooter.init();
     _conveyor.init();
   }
 
@@ -155,10 +155,20 @@ public class Robot extends TimedRobot {
   }
 
   private void conveyorLogic(){
+    SmartDashboard.putBoolean("Ball In Position", _conveyor.isBallInLoadingPosition());
+    if (_driverController.getAButton()){
+      if (_conveyor.isBallInLoadingPosition()){
+        _conveyor.run(0.30);
+      } else {
+        _conveyor.run(0);
+      }
+      return;
+    }
+
     if (_driverController.getBumper(Hand.kRight)){
-      _conveyor.run(0.10);
+      _conveyor.run(0.30);
     } else if (_driverController.getBumper(Hand.kLeft)){
-      _conveyor.run(-0.10);
+      _conveyor.run(-0.30);
     } else {
       _conveyor.run(0);
     }
@@ -167,13 +177,14 @@ public class Robot extends TimedRobot {
   private void shooterLogic(){
     var trigger = _driverController.getTriggerAxis(Hand.kRight);
     if (trigger <= 0.1){
+      _shooter.fire(0);
       return;
     }
 
-    //_shooter.fire(trigger);
+    _shooter.fire(trigger);
 
-    //if (_shooter.isAtSetPower(trigger)){
-    //  _conveyor.run(0.10);
-    //}
+    if (_shooter.isAtSetPower(trigger)){
+      _conveyor.run(0.30);
+    }
   }
 }
