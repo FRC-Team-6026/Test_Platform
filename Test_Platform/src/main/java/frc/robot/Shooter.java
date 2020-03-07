@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Shooter {
     private final WPI_TalonSRX _top = new WPI_TalonSRX(4);
     private final WPI_TalonSRX _bottom = new WPI_TalonSRX(3);
-    private final Solenoid _extSolenoid = new Solenoid(10, 0);
-    private final Solenoid _retrSolenoid = new Solenoid(10, 1);
+    private final Solenoid _extSolenoid = new Solenoid(10, 1);
+    private final Solenoid _retrSolenoid = new Solenoid(10, 0);
     private final int _pidSlot = 0;
     private final int _timeoutMs = 100;
     private final double _peakOutput = 1;
