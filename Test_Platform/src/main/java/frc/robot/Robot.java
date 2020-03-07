@@ -194,15 +194,15 @@ public class Robot extends TimedRobot {
     if (_driverController.getYButton()){
       _lifter.moveHook(0.3);
     } else if (_driverController.getXButton()){
-      _lifter.moveHook(-0.3);
+      _lifter.moveHook(-0.1);
     } else {
       _lifter.moveHook(0);
     }
 
     if (_driverController.getBButton()){
-      _lifter.moveRobot(0.3);
+      _lifter.moveRobot(0.75);
     } else if (_driverController.getAButton()){
-      _lifter.moveRobot(-0.3);
+      _lifter.moveRobot(-0.75);
     } else{
       _lifter.moveRobot(0);
     }
