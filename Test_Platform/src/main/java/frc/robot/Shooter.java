@@ -14,7 +14,7 @@ public class Shooter {
     private final int _timeoutMs = 100;
     private final double _peakOutput = 1;
     private final double _maxVelocityPulsesPer100ms = 27000;
-    private final double _speedDiff = 7000;
+    private final double _speedDiff = 2000;
     private final double _p = 0.25;
     private final double _i = 0.001;
     private final double _d = 20;
@@ -81,10 +81,12 @@ public class Shooter {
 
     public boolean isAtSetPower(double power){
         var velocities = getVelocities(power);
-        var feedbackVelocity = _top.getSelectedSensorVelocity();
-        var feedbackTopVelocity = _bottom.getSelectedSensorVelocity();
-        var bottomDiff = Math.abs(velocities[0] - feedbackVelocity);
-        var topDiff = Math.abs(velocities[1] + feedbackTopVelocity);
+        var feedbackVelocity = _bottom.getSelectedSensorVelocity();
+        var feedbackTopVelocity = _top.getSelectedSensorVelocity();
+        var bottomDiff = Math.abs(velocities[0] + feedbackVelocity);
+        var topDiff = Math.abs(velocities[1] - feedbackTopVelocity);
+        SmartDashboard.putNumber("BottomDiff", bottomDiff);
+        SmartDashboard.putNumber("TopDiff", topDiff);
         if (bottomDiff < _maxDiff && topDiff < _maxDiff){
             return true;
         } else {
