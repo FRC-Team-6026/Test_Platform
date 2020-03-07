@@ -30,6 +30,7 @@ public class Robot extends TimedRobot {
   private final PixyController _pixycontroller = new PixyController();
   private final Shooter _shooter = new Shooter();
   private final Conveyor _conveyor = new Conveyor();
+  private final Lifter _lifter = new Lifter();
 
   /**
    * This function is run when the robot is first started up and should be
@@ -44,6 +45,7 @@ public class Robot extends TimedRobot {
     _pixycontroller.init();
     _shooter.init();
     _conveyor.init();
+    _lifter.init();
   }
 
   /**
@@ -100,6 +102,7 @@ public class Robot extends TimedRobot {
     drivetrainLogic();
     conveyorLogic();
     shooterLogic();
+    lifterLogic();
   }
 
   /**
@@ -112,6 +115,7 @@ public class Robot extends TimedRobot {
     drivetrainLogic();
     conveyorLogic();
     shooterLogic();
+    lifterLogic();
   }
 
   private void drivetrainLogic(){
@@ -156,7 +160,7 @@ public class Robot extends TimedRobot {
 
   private void conveyorLogic(){
     SmartDashboard.putBoolean("Ball In Position", _conveyor.isBallInLoadingPosition());
-    if (_driverController.getAButton()){
+    if (_driverController.getBumper(Hand.kRight)){
       if (_conveyor.isBallInLoadingPosition()){
         _conveyor.run(0.30);
       } else {
@@ -165,11 +169,9 @@ public class Robot extends TimedRobot {
       return;
     }
 
-    if (_driverController.getBumper(Hand.kRight)){
-      _conveyor.run(0.30);
-    } else if (_driverController.getBumper(Hand.kLeft)){
+    if (_driverController.getBumper(Hand.kLeft)){
       _conveyor.run(-0.30);
-    } else {
+    } else{
       _conveyor.run(0);
     }
   }
@@ -185,6 +187,24 @@ public class Robot extends TimedRobot {
 
     if (_shooter.isAtSetPower(trigger)){
       _conveyor.run(0.30);
+    }
+  }
+
+  private void lifterLogic() {
+    if (_driverController.getYButton()){
+      _lifter.moveHook(0.3);
+    } else if (_driverController.getXButton()){
+      _lifter.moveHook(-0.3);
+    } else {
+      _lifter.moveHook(0);
+    }
+
+    if (_driverController.getBButton()){
+      _lifter.moveRobot(0.3);
+    } else if (_driverController.getAButton()){
+      _lifter.moveRobot(-0.3);
+    } else{
+      _lifter.moveRobot(0);
     }
   }
 }
