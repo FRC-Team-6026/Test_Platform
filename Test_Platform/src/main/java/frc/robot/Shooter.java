@@ -5,11 +5,14 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter {
     private final WPI_TalonSRX _top = new WPI_TalonSRX(4);
     private final WPI_TalonSRX _bottom = new WPI_TalonSRX(3);
+    private final Solenoid _extSolenoid = new Solenoid(10, 0);
+    private final Solenoid _retrSolenoid = new Solenoid(10, 1);
     private final int _pidSlot = 0;
     private final int _timeoutMs = 100;
     private final double _peakOutput = 1;
@@ -85,8 +88,6 @@ public class Shooter {
         var feedbackTopVelocity = _top.getSelectedSensorVelocity();
         var bottomDiff = Math.abs(velocities[0] + feedbackVelocity);
         var topDiff = Math.abs(velocities[1] - feedbackTopVelocity);
-        SmartDashboard.putNumber("BottomDiff", bottomDiff);
-        SmartDashboard.putNumber("TopDiff", topDiff);
         if (bottomDiff < _maxDiff && topDiff < _maxDiff){
             return true;
         } else {
@@ -98,14 +99,16 @@ public class Shooter {
      * Opens the gate
      */
     public void openGate(){
-        
+        _extSolenoid.set(false);
+        _retrSolenoid.set(true);
     }
 
     /**
      * Closes the gate
      */
     public void closeGate(){
-
+        _extSolenoid.set(true);
+        _retrSolenoid.set(false);
     }
 
     private double[] getVelocities(double power)

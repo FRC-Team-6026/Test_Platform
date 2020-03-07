@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
@@ -31,6 +32,7 @@ public class Robot extends TimedRobot {
   private final Shooter _shooter = new Shooter();
   private final Conveyor _conveyor = new Conveyor();
   private final Lifter _lifter = new Lifter();
+  private final Compressor _compressor = new Compressor(10);
 
   /**
    * This function is run when the robot is first started up and should be
@@ -46,6 +48,7 @@ public class Robot extends TimedRobot {
     _shooter.init();
     _conveyor.init();
     _lifter.init();
+    _compressor.setClosedLoopControl(true);
   }
 
   /**
@@ -180,6 +183,7 @@ public class Robot extends TimedRobot {
     var trigger = _driverController.getTriggerAxis(Hand.kRight);
     if (trigger <= 0.1){
       _shooter.fire(0);
+      _shooter.closeGate();
       return;
     }
 
@@ -187,6 +191,9 @@ public class Robot extends TimedRobot {
 
     if (_shooter.isAtSetPower(trigger)){
       _conveyor.run(0.30);
+      _shooter.openGate();
+    } else{
+      _shooter.closeGate();
     }
   }
 
