@@ -25,7 +25,7 @@ public class Conveyor {
         SmartDashboard.putNumber("green", g);
         SmartDashboard.putNumber("blue", b);
         SmartDashboard.putNumber("proximity", x);
-        if (x > 115 && r > 150 && g > 150){
+        if (x > 125 && r > 110 && g > 170){
             return true;
         }
         return false;
