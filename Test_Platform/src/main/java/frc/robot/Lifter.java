@@ -1,6 +1,8 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
+import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
@@ -25,6 +27,7 @@ public class Lifter{
         _lightSaber.configFactoryDefault();
 
         _lightSaber.setNeutralMode(NeutralMode.Brake);
+        _lightSaber.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyClosed);
 
         _liftController.setFF(kF);
         _liftController.setP(kP);
