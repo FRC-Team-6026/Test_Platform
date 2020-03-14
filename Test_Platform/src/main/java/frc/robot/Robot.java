@@ -33,6 +33,7 @@ public class Robot extends TimedRobot {
   private final Conveyor _conveyor = new Conveyor();
   private final Lifter _lifter = new Lifter();
   private final Compressor _compressor = new Compressor(10);
+  private final LimelightController _limelightController = new LimelightController();
 
   /**
    * This function is run when the robot is first started up and should be
@@ -49,6 +50,7 @@ public class Robot extends TimedRobot {
     _conveyor.init();
     _lifter.init();
     _compressor.setClosedLoopControl(true);
+    _limelightController.init();
   }
 
   /**
@@ -127,28 +129,17 @@ public class Robot extends TimedRobot {
     var filterSpeedDeadband = false;
     var filterRotationDeadband = false;
 
-    if(_driverController.getAButtonPressed()){
-      _pixycontroller.turnLightOn(255, 255, 255);
-      _pixycontroller.setBrightness(30);
+    if(_driverController.getStartButtonPressed()){
+      _limelightController.turnLightOn();
     }
 
-    if(_driverController.getXButtonPressed()){
-      _pixycontroller.turnLightOn(255, 255, 255);
-      _pixycontroller.setBrightness(10);
+    if(_driverController.getStartButtonReleased()){
+      _limelightController.turnLightOff();
     }
 
-    if(_driverController.getAButtonReleased() || _driverController.getXButtonReleased()){
-      _pixycontroller.turnLightOff();
-    }
-
-    if(_driverController.getAButton()){
+    if(_driverController.getStartButtonPressed()){
       speed = -(_driverController.getY(Hand.kLeft));
-      rotation = _pixycontroller.trackBall();
-      filterSpeedDeadband = true;
-      filterRotationDeadband = false;
-    } else if (_driverController.getXButton()) {
-      speed = -(_driverController.getY(Hand.kLeft));
-      rotation = _pixycontroller.trackTarget();
+      rotation = _limelightController.trackTarget();
       filterSpeedDeadband = true;
       filterRotationDeadband = false;
     } else {
