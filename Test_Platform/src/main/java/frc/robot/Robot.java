@@ -137,7 +137,7 @@ public class Robot extends TimedRobot {
       _limelightController.turnLightOff();
     }
 
-    if(_driverController.getStartButtonPressed()){
+    if(_driverController.getStartButton()){
       speed = -(_driverController.getY(Hand.kLeft));
       rotation = _limelightController.trackTarget();
       filterSpeedDeadband = true;
