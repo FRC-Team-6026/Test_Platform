@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableRegistry;
 public class LimelightController{
     private final NetworkTableInstance _instance = NetworkTableInstance.getDefault();
     private final NetworkTable _table = _instance.getTable("limelight");
-    private final PIDController _targetPid = new PIDController(0.01, 0, 0);
+    private final PIDController _targetPid = new PIDController(0.05, 0, 0);
 
     public void init(){
         _targetPid.setSetpoint(0);
