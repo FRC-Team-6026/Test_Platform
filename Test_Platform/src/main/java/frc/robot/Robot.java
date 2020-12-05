@@ -32,7 +32,8 @@ public class Robot extends TimedRobot {
   private final Shooter _shooter = new Shooter();
   private final Conveyor _conveyor = new Conveyor();
   private final Lifter _lifter = new Lifter();
-  private final Compressor _compressor = new Compressor(10);
+  private final Intake _intake = new Intake();
+  private final Compressor _compressor = new Compressor(15);
   private final LimelightController _limelightController = new LimelightController();
 
   /**
@@ -49,6 +50,7 @@ public class Robot extends TimedRobot {
     _shooter.init();
     _conveyor.init();
     _lifter.init();
+    _intake.init();
     _compressor.setClosedLoopControl(true);
     _limelightController.init();
   }
@@ -108,6 +110,7 @@ public class Robot extends TimedRobot {
     conveyorLogic();
     shooterLogic();
     lifterLogic();
+    intakeLogic();
   }
 
   /**
@@ -121,6 +124,7 @@ public class Robot extends TimedRobot {
     conveyorLogic();
     shooterLogic();
     lifterLogic();
+    intakeLogic();
   }
 
   private void drivetrainLogic(){
@@ -203,6 +207,19 @@ public class Robot extends TimedRobot {
       _lifter.moveRobot(-0.75);
     } else{
       _lifter.moveRobot(0);
+    }
+  }
+
+  private void intakeLogic() {
+    if(_driverController.getStickButtonPressed(Hand.kRight)){
+      _intake.run();
+    }
+    if(_driverController.getStickButtonPressed(Hand.kLeft)){
+      _intake.reverse();
+    }
+    if(_driverController.getStickButtonReleased(Hand.kLeft) ||
+    _driverController.getStickButtonReleased(Hand.kRight)){
+      _intake.stop();
     }
   }
 }
