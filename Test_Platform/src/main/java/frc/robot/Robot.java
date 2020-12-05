@@ -156,7 +156,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Ball In Position", _conveyor.isBallInLoadingPosition());
     if (_driverController.getBumper(Hand.kRight)){
       if (_conveyor.isBallInLoadingPosition()){
-        _conveyor.run(0.40);
+        _conveyor.run(0.70);
       } else {
         _conveyor.run(0);
       }
@@ -164,7 +164,7 @@ public class Robot extends TimedRobot {
     }
 
     if (_driverController.getBumper(Hand.kLeft)){
-      _conveyor.run(-0.40);
+      _conveyor.run(-0.70);
     } else{
       _conveyor.run(0);
     }
