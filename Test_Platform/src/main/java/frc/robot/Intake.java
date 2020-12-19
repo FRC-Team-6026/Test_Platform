@@ -3,30 +3,28 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
+import edu.wpi.first.wpilibj.Solenoid;
+
 public class Intake {
 
     private final WPI_VictorSPX _intake = new WPI_VictorSPX(14);
+    private final Solenoid _arms = new Solenoid(15,0);
+    private boolean _isExtended = false;
 
     public void init(){
         _intake.configFactoryDefault();
     }
 
     public boolean isExtended(){
-        return false;
+        return _isExtended;
     }
 
     /**
-     * Extends the intake mechanism outside the robot
+     * Extends moves the arms of the intake to not extended or extended
      */
-    public void extend(){
-        
-    }
-
-    /**
-     * Retracts the intake mechanism inside the robot
-     */
-    public void retract(){
-
+    public void moveArms(boolean extend){
+        _isExtended = extend;
+        _arms.set(_isExtended);
     }
 
     /**

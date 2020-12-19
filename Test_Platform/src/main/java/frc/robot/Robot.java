@@ -183,12 +183,12 @@ public class Robot extends TimedRobot {
     }
 
     _shooter.fire(trigger);
+    _shooter.openGate();
 
     if (_shooter.isAtSetPower(trigger)){
       _conveyor.run(0.30);
-      _shooter.openGate();
     } else{
-      _shooter.closeGate();
+      _conveyor.run(0);
     }
   }
 
@@ -211,15 +211,21 @@ public class Robot extends TimedRobot {
   }
 
   private void intakeLogic() {
-    if(_driverController.getStickButtonPressed(Hand.kRight)){
+    if (_driverController.getStickButtonPressed(Hand.kRight)){
       _intake.run();
     }
-    if(_driverController.getStickButtonPressed(Hand.kLeft)){
+
+    if (_driverController.getStickButtonPressed(Hand.kLeft)){
       _intake.reverse();
     }
-    if(_driverController.getStickButtonReleased(Hand.kLeft) ||
+
+    if (_driverController.getStickButtonReleased(Hand.kLeft) ||
     _driverController.getStickButtonReleased(Hand.kRight)){
       _intake.stop();
+    }
+
+    if (_driverController.getBackButtonPressed()) {
+      _intake.moveArms(!_intake.isExtended());
     }
   }
 }
