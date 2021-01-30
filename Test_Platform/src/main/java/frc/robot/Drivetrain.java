@@ -9,6 +9,11 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Drivetrain {
+    private static final double kGearRatio = 10.71;
+    private static final double kWheelDiameterMm = 152.4;
+    private static final double kMmPerRevolution = (1 / kGearRatio) * Math.PI * kWheelDiameterMm;
+    private static final double kDriveBaseMm = 556.25;
+    private static final double kDriveRadiusMm = kDriveBaseMm / 2.0;
     private static final double kP = 5e-5;
     private static final double kI = 1e-6;
     private static final double kD = 0;
@@ -91,6 +96,25 @@ public class Drivetrain {
         _rightController.setReference(rightVelocityRpm, ControlType.kVelocity);
     }
 
+    public void driveDistanceMm(double distanceMm){
+
+        var revolutions = distanceMm / kMmPerRevolution;
+        _leftCanEncoder.setPosition(0);
+        _rightCanEncoder.setPosition(0);
+        _leftController.setReference(revolutions, ControlType.kSmartMotion);
+        _rightController.setReference(revolutions, ControlType.kSmartMotion);
+    }
+
+    public void turnAngle(double angle){
+        var angleRadians = angle * Math.PI / 180.0;
+        var rotationDistanceMm = angleRadians * kDriveRadiusMm;
+        var revolutions = rotationDistanceMm / kMmPerRevolution;
+        _leftCanEncoder.setPosition(0);
+        _rightCanEncoder.setPosition(0);
+        _leftController.setReference(revolutions, ControlType.kSmartMotion);
+        _rightController.setReference(-revolutions, ControlType.kSmartMotion);
+    }
+
     private void config(CANPIDController controller, CANEncoder encoder){
         //encoder.setVelocityConversionFactor(1.0/4096.0);
         controller.setFF(kF);
@@ -98,6 +122,8 @@ public class Drivetrain {
         controller.setI(kI);
         controller.setD(kD);
         controller.setOutputRange(-1, 1);
+        controller.setSmartMotionMaxVelocity(kMaxRpm, 0);
+        controller.setSmartMotionMaxAccel(1500, 0);
         controller.setFeedbackDevice(encoder);
     }
 

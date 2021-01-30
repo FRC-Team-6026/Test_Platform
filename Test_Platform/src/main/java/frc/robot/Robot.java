@@ -106,11 +106,17 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    drivetrainLogic();
+    if (_driverController.getStartButtonPressed()){
+      _drive.driveDistanceMm(1000);
+    }
+    if (_driverController.getBackButtonPressed()){
+      _drive.turnAngle(180);
+    }
+    //drivetrainLogic();
     conveyorLogic();
     shooterLogic();
     lifterLogic();
-    intakeLogic();
+    //intakeLogic();
   }
 
   /**
